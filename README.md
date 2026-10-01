@@ -67,23 +67,3 @@ curl -H "Authorization: Bearer $ADMIN_TOKEN" \
 ```
 
 The admin can create, update, delete, activate, or deactivate tools. `GET /tools/{name}/permissions` shows mappings. `POST /tools/{name}/invoke` is the single execution endpoint. The seeded viewer can call knowledge search but is denied currency conversion and ticket creation. The developer can call all three. The admin has implicit access. Responses carry `request_id` and `trace_id`; errors use `{"error":{"code":"...","message":"..."},"request_id":"...","trace_id":"..."}`.
-
-## Threat model and trade-offs
-
-The main risks are unauthorized calls, server-side request forgery through a registered target, oversized or hostile schemas, downstream outage, and leakage through audit data. JWTs are signed with a local key, tool targets are restricted to three exact internal URLs, schemas reject remote references, inputs are validated, Redis enforces per-user/tool limits and circuit state, and audit records contain only argument names and byte counts. No raw arguments, outputs, passwords, or real secrets are stored. Keep `.env` private and never expose this demo token issuer publicly.
-
-This MVP uses a shared bootstrap key instead of real identity management, a simple expiring counter for limits, in-process OTel spans exported to JSON logs, and fixed mock tool services. Redis is bound to loopback without authentication; the stack is intended for a trusted local machine. Tool output is mocked and support tickets are simulated. See [architecture](docs/architecture.md) and [runbook](docs/runbook.md) for details.
-
-## Project views
-
-![API documentation overview](docs/images/api-docs.png)
-
-![Allowed knowledge-search invocation](docs/images/allowed-invocation.png)
-
-![Denied support-ticket invocation](docs/images/denied-invocation.png)
-
-![Metadata-only audit query](docs/images/audit-log.png)
-
-![Prometheus metrics view](docs/images/metrics.png)
-
-![GitHub Actions workflow layout](docs/images/github-actions.png)
